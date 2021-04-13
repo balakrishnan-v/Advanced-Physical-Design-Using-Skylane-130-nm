@@ -66,7 +66,7 @@ Marco-Planning: Generally the macros have to be fixed before we place any IPs
 ## The sysnthesis report which is generated after the run the commands
 ```linux
 package require openlane 0.9
-prep -design picorv32a -tag foder_name (creates in runs section)
+prep -design picorv32a -tag foder_name 
 run_synthesis
 ```
 ![synthesis report](https://user-images.githubusercontent.com/58397908/114047129-11c4c280-98a7-11eb-8443-0678f9bc13f8.jpg)
@@ -113,9 +113,6 @@ set ::env(CLOCK_PERIOD) _value_
 magic -T //loaction of magic T tech file// read lef //location of merged lef file// read def //location def
 ```
 ### After running the command if we use the magic we can view this file which depiects the picture a floorplan with components placed globally
-![placement](https://user-images.githubusercontent.com/58397908/114306373-71b2a780-9af9-11eb-8be8-bc8b2abe64dc.jpg) 
-
-### Magic Floorplan View
 ![magic floorplan](https://user-images.githubusercontent.com/58397908/114306031-25b33300-9af8-11eb-98b0-c714d30aa249.jpg)
 
 ### Ioplacer showing the data about the designs with respect to the config.tcl file , default file (Importantly the sky130a_fd_sc_hd file)
@@ -138,30 +135,6 @@ Depending on it we can determine the following conditions :-
   - Routing
   - STA
 
-
-time(out_*_thr) - time(in_*_thr)
-
-
-![transient response](https://user-images.githubusercontent.com/58397908/114306286-1a143c00-9af9-11eb-96ab-c257b3f75baf.jpg)
-
-the transient response with respect to voltage and time (spice simulations)
-
-![calculating time delay](https://user-images.githubusercontent.com/58397908/114306316-3912ce00-9af9-11eb-81ce-c68be03a8333.jpg)
-
-calculating time delay 
-
-
-![cell rise delay](https://user-images.githubusercontent.com/58397908/114306319-3c0dbe80-9af9-11eb-8918-5062ff7682ad.jpg)
-
-calculatinf rise delay
-
-
-
-![ngspice simulation](https://user-images.githubusercontent.com/58397908/114306642-074e3700-9afa-11eb-9336-de153c90da29.jpg)
-
-
-
-
 # Day 3
 ## Cell design flow for an ASIC
 We generallly design a standard cell which can be placed in a library we take the inputs (from foundries) and accordingly we get PDKs(process design kits) which contains DRC & LVS rules, SPICE models files which gives us data on threshold voltage, capacitance etc and library, user-defined specs which specifies the cell height that is the gap between the power lines and ground lines , cell width and so on.
@@ -181,6 +154,7 @@ CDL (circuit description language), GDSII(layout file),LEF(defines layout), extr
   - And lastly necessary simulation command
 
 ## SPICE Simulations
+SPICE decks for CMOS inverter and checks for component connectivity of source of pmos is connected to vdd and source of nmos is connected to capacitor.
 The below code is written for an inverter
 We analyse the data with respect to time and voltage
 These characteristics can be called as timing constrainsts a few below are examples of how they are cateogrised :-
@@ -192,6 +166,7 @@ These characteristics can be called as timing constrainsts a few below are examp
   - In fall thr
   - Out rise thr
   - Out fall thr
+
 ```
 ** MODEL Descriptions **
 ** NETLIST Descriptions **
@@ -209,119 +184,45 @@ vin in 0 2.5
 .LIB "tsmc_025um_model.mod" CMOS_MODELS
 .end
 ```
+### After running the spice simulation this window appears with all the parameters
+![ngspice simulation](https://user-images.githubusercontent.com/58397908/114306642-074e3700-9afa-11eb-9336-de153c90da29.jpg)
 
-SPICE decks for CMOS inverter
-component connectivity
-source of pmos is connected to vdd
-source of nmos is connected to capacitor
+### The transient response with respect to voltage and time (spice simulations)
+![transient response](https://user-images.githubusercontent.com/58397908/114306286-1a143c00-9af9-11eb-96ab-c257b3f75baf.jpg)
 
+### Calculating time delay using the threshold values 
+![calculating time delay](https://user-images.githubusercontent.com/58397908/114306316-3912ce00-9af9-11eb-81ce-c68be03a8333.jpg)
 
-component values
-pmos and nmos w/l 0.375micron/0.25micron
-pmos should be wider than nmos
-cload is approx 10fF
-i/p gate and supply volt is approx 2.5V depending on channel length
+### Calculating rise delay
+![cell rise delay](https://user-images.githubusercontent.com/58397908/114306319-3c0dbe80-9af9-11eb-8918-5062ff7682ad.jpg)
 
-nodes
-identifying and naming nodes
-
-case 1 specs (wn=wp=0.325,lp=ln=0.25,wn/ln=wp/lp =1.5)
-case 2 specs (wn<wp=0.9375u,lp=ln,wn/ln=1.5<wp/lp=3.75)
-cmos is robust as a result it is widely used in gate designs
-vin 0 o/p 1
-vin 1 o/p 0
-1. Switching Threshold Vm
-device current leakage at this stage is high
-vin = vout (tan 45*)
-case 1 is approx 0.98
-case 2 is approx 1.2
-we calculate rise delay fall delay
-vgs = vds
-idsp=-idsn
-
-16 mask CMOS process
-selecting a substrate
-ptype,high resistivity(5~50omhs),doping lvl(10^15 cm^-3),orientation(100)
-doping should be less than well doping
-
-creating active region for transistors
-grow a SiO2 40nm
-Si3N4 80nm
-1um photoresist
-then we use photolithography and block the regions for wells
-other layers are etched off
-placed in oxidation furance SiO2 is grown
-Bird's break, LOCOS
-ethc off the Si3N4  using P2OH3
-
-n well(pmos) and p well(nmos)
-photoresist
-pwell B is used where it is diffused by ion implentation (200keV) which penitaters thro oxide layer
-nwell P is used where is it difused (400keV)
-P heavier than B
-driving  furnance 1100C 
-diffuses the n and p well 
-twin tubes
-
-formation of gate
-which controls threshold voltage
-factors effecting gate 
-doping concern
-oxide concentration
-B is used on p well side on surface  (60KeV)
-Ar(as low as possible) we control the threshold voltage
-HF is used to etch off the SiO2 and it is regrown
-polysilicon layer is grown and then dope it with more impurities
-excess polysilicon is removed (low resistance gate)
-
-lightly doped drain (LDD) formation
-2 reasons why we need n- and p-
-hot electron effect 
-high energy carrier break Si-Si bonds
-3.2eV barrier b/w Si conduction band
-SiO2 conduction band
-short channel effect
-drain penetrates channel which makes the gate to control the drain very hard
-P is used on p well n- implant
-B is used on n well p- implant
-side wall spacers are createrd(Si3N4) Plasma anistropic etching 
-
-source and drain formation
-thin layer of oxide for avoiding ion going into the substrate helps in randomize the direction of ions 
-As(75kev) 
-n+ n- p
-p+ p- n
-high temperature analing
-
-steps for generating contacts
-Titanium for conductivity
-sputtering means hitting the a metal(Ti) with the Agron(Ar) forms a layer 
-Titanium react with Si and forms TiSi(low resistance), TiN(low comm)
-RCA cleaning Deionsed water, 5 parts, NH4OH,H2O2 1 part
-TiN local interconnect
-
-Higher level metal formation
-thick layer of SiO2 doping it with P(acts a protection Na ions) and B (reduces the temperature)
-TiN
-blanket tungsten(W) excess is washed
-Aluminium is used for higher level
-thickness of the interrconnect is increased as we go up
-Si2N4 acts as a protection layer for the entire chip
-
-drain gate source substrate
-
-
-
+## 16 Mask CMOS process
+- Selecting a substrate which takes care of ptype,high resistivity(5~50omhs),doping lvl(10^15 cm^-3),orientation(100) and generally doping should be less than well doping.
+- Creating active region for transistors which is done by growing a SiO240nm and Si3N4 80nm
+- n well(pmos) and p well(nmos) which are created by ion implantation process
+- Formation of gate which is very important as it controls threshold voltage
+  - Factors effecting gate doping concentration and oxide concentration
+- Lightly Doped Drain (LDD) formation There are mainly 2 reasons why we need n- and p-
+    - Hot electron effect 
+    - High energy carrier (breaks the Si-Si bonds)
+- Source and Drain formation a thin layer of oxide for avoiding ion going into the substrate helps in randomize the direction of ions
+- Generating contacts which form a means of communication between layers
+- Higher level metal formation for proper contacting
 requirements
 i/o msut line on intersection hor
 width odd multiple hor pitch
 height odd multiple of ver pitch
 
-
-![placement after cell](https://user-images.githubusercontent.com/58397908/114306365-6c555d00-9af9-11eb-87aa-8e808a25157e.jpg)
-![preplaced cell](https://user-images.githubusercontent.com/58397908/114306367-6eb7b700-9af9-11eb-9296-e7d6dc5491d2.jpg)
+### Inverter that has to be added
+![inverter with errors](https://user-images.githubusercontent.com/58397908/114598133-2d690800-9caf-11eb-9af5-2eb6da0d59bd.jpg)
 ![pmos](https://user-images.githubusercontent.com/58397908/114306384-80995a00-9af9-11eb-8c51-c73ac6c5091b.jpg)
+
+### Placement after the Inverter is added
+![placement after cell](https://user-images.githubusercontent.com/58397908/114306365-6c555d00-9af9-11eb-87aa-8e808a25157e.jpg)
+
+### IP being shown after we synthesis it and place it onto the floorplan
 ![ip added](https://user-images.githubusercontent.com/58397908/114306532-bdfde780-9af9-11eb-8594-5102ca37f98c.jpg)
+
 
 # Day 4
 ## clock tree synthesis 
@@ -357,3 +258,6 @@ slack after few conversions
 
 the pre preped file
 
+# Day 5
+![power](https://user-images.githubusercontent.com/58397908/114599117-5342dc80-9cb0-11eb-867f-bd78dfa7ef7e.jpg)
+![routing](https://user-images.githubusercontent.com/58397908/114599128-576efa00-9cb0-11eb-83e3-8da6e9562499.jpg)
