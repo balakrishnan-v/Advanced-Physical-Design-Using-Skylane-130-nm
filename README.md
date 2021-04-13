@@ -331,10 +331,11 @@ run_routing //for the workshop we have run global routing with the mode at 0
 python.3 main.py //loaction of lef/merged.lef //location of def/picorv32a.routing.def
 ```
 SPEF stands for standard Parastic Exchange Format generally represents the data (which are generally parameters such as resistance, capacitance) of a chip of ASIC design. Openlane does not support SPEF Extractor we need to do it manually using python as the script language. 
+
 ![new](https://user-images.githubusercontent.com/58397908/114615246-116f6180-9cc3-11eb-9461-a63f3d65657d.jpg)
 
 # Acknowledgements
-Kunal Ghosh - Co founder (VSD Corp Pvt Ltd)
-Nickson Jose - VSD VLSI Engineer
-Praharsha Mahurkar - VSD TA
-Akurathi Radhika - VSD TA
+- Kunal Ghosh - Co founder (VSD Corp Pvt Ltd)
+- Nickson Jose - VSD VLSI Engineer
+- Praharsha Mahurkar - VSD TA
+- Akurathi Radhika - VSD TA
