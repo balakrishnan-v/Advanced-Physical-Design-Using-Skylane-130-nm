@@ -23,6 +23,8 @@
    - Power Distribution Network
    - Routing
    - SPEF file generation
+- Contact
+- Acknowledgements
 
 # DAY 1 
 ## Introduction
@@ -261,7 +263,7 @@ replace_cell _cell number_ _with the type you want to replace_
 ![post slacl](https://user-images.githubusercontent.com/58397908/114306611-ed145900-9af9-11eb-8f70-09d158b87b1b.jpg)
 
 ### After making all the adjustments we can run the command to force write the old synthesis.v file with new one
-```linux
+```
 write //location of the synthesis.v file
 ```
 ### and also shows us these results after more conversions
@@ -277,7 +279,7 @@ run_cts
 ```
 
 ### openroad is now operated 
-```linux
+```
 openroad
 read_lef //location of lef file/merged.lef
 read_def //location of current def file/picorv32a.xxx.def
@@ -296,7 +298,7 @@ report_checks //all the parameters you need
 ### Now we include the pre-made slack of -0.12 into the synthesis file and run till cts so that we have a base idea of how the slacks are after you try to obtain a positive slack in the opensta toll itself
 ![012 thing](https://user-images.githubusercontent.com/58397908/114308846-d58d9e00-9b02-11eb-998b-1f690c980e0d.jpg)
 
-```linux
+```
 report_clock_slew -setup
 report_clock_slew -hold
 ```
@@ -306,7 +308,7 @@ report_clock_slew -hold
 
 # Day 5
 ## Power Distribution Creation
-```linux
+```
 run_pnd
 ```
 Generally after verifying all the post cts synthesis values and specifications we end up with the power network creation where in the power is distributed throught the mesh which is powered by the pins placed along the ASIC. The power is connected through I/O pins (pads internally) which makes the ASIC perform the tasks.
@@ -317,7 +319,7 @@ Generally after verifying all the post cts synthesis values and specifications w
 Routing is generally done globally and detailed 
 1. Global is less time consuming but has a drawback of not being as accurate as detailed routing
 2. Detailed routing does take double the time but is very detailed as a result it can be said to accurate 
-```linux
+```
 echo $::env(ROUTING_STRATEGY)
 run_routing //for the workshop we have run global routing with the mode at 0
 ```
@@ -330,3 +332,9 @@ python.3 main.py //loaction of lef/merged.lef //location of def/picorv32a.routin
 ```
 SPEF stands for standard Parastic Exchange Format generally represents the data (which are generally parameters such as resistance, capacitance) of a chip of ASIC design. Openlane does not support SPEF Extractor we need to do it manually using python as the script language. 
 ![new](https://user-images.githubusercontent.com/58397908/114615246-116f6180-9cc3-11eb-9461-a63f3d65657d.jpg)
+
+# Acknowledgements
+Kunal Ghosh - Co founder (VSD Corp Pvt Ltd)
+Nickson Jose - VSD VLSI Engineer
+Praharsha Mahurkar - VSD TA
+Akurathi Radhika - VSD TA
