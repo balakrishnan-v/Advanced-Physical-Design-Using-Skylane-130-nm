@@ -1,4 +1,6 @@
 # Advanced-Physical-Design-Using-Skylane-130-nm
+![advanced_physical_design](https://user-images.githubusercontent.com/58397908/114615973-f0f3d700-9cc3-11eb-9239-0efde0e34271.png)
+
 # Contents
 - Day 1 
    - Introduction
@@ -7,19 +9,21 @@
    - OpenLANE
    - Getting started with the platform
 - Day 2
-   - pre placed cells
-   - floorplanning rules
-   - timing characterizations
+   - Floorplan
+   - Floorplanning rules
+   - Need for library characterization
 - Day 3
-   - magic tool
-   - placement of the inverter
-   - 16 step cmos mask process
-   - drc checkers
+   - SPICE simulations
+   - 16 step CMOS mask process
+   - DRC Checkers
 - Day 4
-   - openSTA
-   - clock tree synthesis 
-   - openroad
-   - 
+   - OpenSTA
+   - Clock Tree Synthesis 
+- Day 5
+   - Power Distribution Network
+   - Routing
+   - SPEF file generation
+
 # DAY 1 
 ## Introduction
 This course gives the basic overview of designing an IP(Intellectual Property) using the opensource tool OpenLANE from skywater foundaries in collaboration with google.
@@ -82,7 +86,8 @@ Utilization Factor = (Area occuipied by Netlist)/(Total Area of the Core)
 ```
 Ideally we go for a (50 - 60) % so that it is easier for the tools to work.
 The other factor is 
-```Aspect ratio (If it other than 1 it signifies rectangle) = height/width
+```Aspect ratio = height/width
+   (If it other than 1 it signifies rectangle)
 ```
 2. Pre placed cells
 They can be macros or ips and alo are a part of the top level netlist. The location placing or arrangements of the cells are done only once because of their functionality which does not change, As a result they are placed before routing and placement of other cells
@@ -121,9 +126,11 @@ magic -T //loaction of magic T tech file// read lef //location of merged lef fil
 ### Pins are non-symmetrical as shown in the figure which can be preset depending upon the choice
 ![pins are non symmetrical](https://user-images.githubusercontent.com/58397908/114306407-93139380-9af9-11eb-8c6e-850250a226ef.jpg)
 
-
-the picture shows the placement done before the placing of ip
-![floorplan die to core ](https://user-images.githubusercontent.com/58397908/114306029-251a9c80-9af8-11eb-89a6-90e1058eb9ab.jpg)
+```linux
+run_placement
+```
+### Placemet being shown using magic window 
+![placement after cell](https://user-images.githubusercontent.com/58397908/114306365-6c555d00-9af9-11eb-87aa-8e808a25157e.jpg)
 
 ## Need for library characterization
 It is important because it general holds all the data of a particular netlist which can be a cell or an IP.
@@ -223,41 +230,103 @@ height odd multiple of ver pitch
 ### IP being shown after we synthesis it and place it onto the floorplan
 ![ip added](https://user-images.githubusercontent.com/58397908/114306532-bdfde780-9af9-11eb-8594-5102ca37f98c.jpg)
 
+## DRC Checkers
+We can check for drc errors by using the magic tool in which we have in built functions which can guide us to the error if and only if the configurations are speciefied accordingly
+
+## Below figure depicts us the information about the data of alias names for pwell, nwell and so on
+![alias](https://user-images.githubusercontent.com/58397908/114609887-ee41b380-9cbc-11eb-971e-1478fb6b6f52.jpg)
+
+
 
 # Day 4
-## clock tree synthesis 
+## OpenSTA 
+It is a tool which can be opened either using openroad (which is present inside openlane) or all by itself. This tool helps us reduce slack, find errors post synthesis which is helps the enginner debug any errors(bugs). STA stands for static timing anaylsis, generally slack means when the it is negative the output respresented is faster than the incoming input meaning the data shown at the output has not yet shown in the input which is flawed. That is why we generally prefer the slack to be positive or zero.
 
-## open STA
-## openroad
+## Before we run those commands on the opensta we need to first create the new lef file. The file can be replaced or sent to a new location by copying it 
+```
+linux
+write lef (in the magic tool window)
+cp new_merged.lef to src location (where we have placed other important files for ease of communication)
+```
+### Below figure shows us the information about slacks
+![tracks file](https://user-images.githubusercontent.com/58397908/114609345-4fb55280-9cbc-11eb-9f8e-51bd580dd3f3.jpg)
 
-![clock slew both](https://user-images.githubusercontent.com/58397908/114308800-a7a85980-9b02-11eb-8af0-6fa2213a9835.jpg)
-
-we can see both slew rates that is hold and setup for -0.12 slack 
-
-![positive slack](https://user-images.githubusercontent.com/58397908/114306603-e554b480-9af9-11eb-8eee-b8418019bc2e.jpg)
-
-we have got a positive slack which is the result of all the conversion of buffers
+### The slack in the opensta tool after making changes that is by converting one buffer to another (meaning we increase the size to decrease the slew this does result in incremeant of cell size) 
+```
+linux
+replace_cell _cell number_ _with the type you want to replace_
+```
+![decreased slack](https://user-images.githubusercontent.com/58397908/114306653-103f0880-9afa-11eb-8ce2-c65581c0162f.jpg)
 
 ![post slacl](https://user-images.githubusercontent.com/58397908/114306611-ed145900-9af9-11eb-8f70-09d158b87b1b.jpg)
 
-conversion of slack after post synthesis can be seen
-
+### After making all the adjustments we can run the command to force write the old synthesis.v file with new one
+```linux
+write //location of the synthesis.v file
+```
+### and also shows us these results after more conversions
 ![synthesis after opensta](https://user-images.githubusercontent.com/58397908/114306617-f30a3a00-9af9-11eb-829b-ab5f41ec08e7.jpg)
 
-this is slack after the conversion of all buffers in opensta for post synthesis
+### From the below figure we can see that we have included the vsd_inv into the core making
+![vsd_inv](https://user-images.githubusercontent.com/58397908/114610338-67410b00-9cbd-11eb-957c-3429cf47ed07.jpg)
 
-![synthesis report](https://user-images.githubusercontent.com/58397908/114306619-f4d3fd80-9af9-11eb-9e6a-0afc4b63b867.jpg)
+## CTS (Clock-Tree-Synthesis)
+It generally builds a sets of clock for a digital design circuit in a floorplan. This is a crucial step as it will determine whether we get a proper working CTS or not and also it will us the type of slack the core is running. CTS is generally done by the TritonCTS which is basically a part of openroad (openroad is intergrated into openlane)
+```linux
+run_cts
+```
 
-general synthesis report
+### openroad is now operated 
+```linux
+openroad
+read_lef //location of lef file/merged.lef
+read_def //location of current def file/picorv32a.xxx.def
+write_db _name_.db 
+read_db _name_.db
+read_verilog //location/picorv32a.synthesis_cts.v
+read_liberty $::(LIB_SYNTH_CELL)
+link_design picorv32a
+read_sdc //location/xx.sdc
+set_propagated_clocks [all_inputs]
+report_checks //all the parameters you need
+```
+### After we run the placement and clock tree synthesis we find that we have a positive slack this is due to the fact we have included standard cell library and also linked it to picorv32a core (inside the openroad)
+![positive slack](https://user-images.githubusercontent.com/58397908/114306603-e554b480-9af9-11eb-8eee-b8418019bc2e.jpg)
 
-![decreased slack](https://user-images.githubusercontent.com/58397908/114306653-103f0880-9afa-11eb-8ce2-c65581c0162f.jpg)
-
-slack after few conversions
-
+### Now we include the pre-made slack of -0.12 into the synthesis file and run till cts so that we have a base idea of how the slacks are after you try to obtain a positive slack in the opensta toll itself
 ![012 thing](https://user-images.githubusercontent.com/58397908/114308846-d58d9e00-9b02-11eb-998b-1f690c980e0d.jpg)
 
-the pre preped file
+```linux
+report_clock_slew -setup
+report_clock_slew -hold
+```
+### These are the clock slew rates which can run on the opensta or openroad with preset names
+![clock slew both](https://user-images.githubusercontent.com/58397908/114308800-a7a85980-9b02-11eb-8af0-6fa2213a9835.jpg)
+
 
 # Day 5
+## Power Distribution Creation
+```linux
+run_pnd
+```
+Generally after verifying all the post cts synthesis values and specifications we end up with the power network creation where in the power is distributed throught the mesh which is powered by the pins placed along the ASIC. The power is connected through I/O pins (pads internally) which makes the ASIC perform the tasks.
+
 ![power](https://user-images.githubusercontent.com/58397908/114599117-5342dc80-9cb0-11eb-867f-bd78dfa7ef7e.jpg)
+
+## Routing
+Routing is generally done globally and detailed 
+1. Global is less time consuming but has a drawback of not being as accurate as detailed routing
+2. Detailed routing does take double the time but is very detailed as a result it can be said to accurate 
+```linux
+echo $::env(ROUTING_STRATEGY)
+run_routing //for the workshop we have run global routing with the mode at 0
+```
+### Image below shows us that the routing is done
 ![routing](https://user-images.githubusercontent.com/58397908/114599128-576efa00-9cb0-11eb-83e3-8da6e9562499.jpg)
+
+## SPEF Extractor
+```
+python.3 main.py //loaction of lef/merged.lef //location of def/picorv32a.routing.def
+```
+SPEF stands for standard Parastic Exchange Format generally represents the data (which are generally parameters such as resistance, capacitance) of a chip of ASIC design. Openlane does not support SPEF Extractor we need to do it manually using python as the script language. 
+![new](https://user-images.githubusercontent.com/58397908/114615246-116f6180-9cc3-11eb-9461-a63f3d65657d.jpg)
